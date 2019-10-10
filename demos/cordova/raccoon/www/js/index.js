@@ -14,48 +14,38 @@ var jeefacetransferCanvas;
 var vidElement;
 
 function onDeviceReady() {
-    canvas = document.getElementById('canvas');
-    canvasWeb = document.getElementById('canvasWebgl');
-    jeefacetransferCanvas = document.getElementById('jeefacetransferCanvas');
-    //gl = canvasWeb.getContext("webgl"); jeefacetransferCanvas
-    //gl = canvasWeb.getContext("jeefacetransferCanvas");
+  canvas = document.getElementById('canvas');
+  canvasWeb = document.getElementById('canvasWebgl');
+  jeefacetransferCanvas = document.getElementById('jeefacetransferCanvas');
+  
+  CanvasCamera.initialize(canvas);
+  let isFirstTime = true;
 
-    CanvasCamera.initialize(canvas);
-
-    var options = {
-        cameraFacing: 'front',
-        fps:30,
-        width: 288,
-        height: 352,
-        canvas: {
-            width: 288,
-            height: 352
-        },
-        capture: {
-            width: 288,
-            height: 352
-        },
-        onAfterDraw: function(frame) {
-            //var dest;
-            //dest = canvasWeb.getContext('2d');
-            //dest.drawImage(canvas,0,0);
-        }
-    };
-    CanvasCamera.start(options);
-
-    console.log("canv",canvas);
-
-    initWeboji();
+  var options = {
+    cameraFacing: 'front',
+    fps:30,
+    width: 288,
+    height: 352,
+    canvas: {
+      width: 288,
+      height: 352
+    },
+    capture: {
+      width: 288,
+      height: 352
+    },
+    onAfterDraw: function(frame) {
+      if (isFirstTime) {
+        isFirstTime = false;
+        // We init Weboji here otherwise the size of the video canvas is wrong.
+        initWeboji();
+      }
+    }
+  };
+  CanvasCamera.start(options);
 }
 
 function initWeboji(){
-    alert("initialising jeeliz");    
-    console.log("using source image of ",canvas);
-
-    THREE.JeelizHelper.onLoad=function(){
-        console.log("jeelize canvas is: ",THREE.JeelizHelper.get_cv() );
-    };
-    
   THREE.JeelizHelper.init({
     canvasThreeId: 'canvasWebgl',
     canvasId: 'jeefacetransferCanvas',
@@ -63,7 +53,7 @@ function initWeboji(){
     assetsParentPath: './assets/3D/',
     NNCpath: './js/dist/',
 
-     videoSettings: {
+    videoSettings: {
       videoElement: canvas
     },
 
@@ -73,6 +63,12 @@ function initWeboji(){
       diffuseMapURL: 'textures/Fox_albedo.png',
       specularMapURL: 'textures/Fox_specular.png',
       flexMapURL: 'textures/Fox_flex.png'
+    },
+    successCallback: function(){
+      console.log('INFO in index.js: successCallback() called');
+    },
+    errorCallback: function(errCode){
+      console.log('ERROR in index.js: ', errCode);
     },
     position: [0,-80, 0],
     scale: 1.2
